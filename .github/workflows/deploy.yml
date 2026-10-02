@@ -1,0 +1,70 @@
+name: Deploy To Ubuntu
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Master
+        uses: actions/checkout@v7
+        with:
+          ref: master
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Check Node Version
+        run: |
+          node -v
+          npm -v
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Stop Old Application
+        run: |
+          if [ -f /home/ubuntu/node-demo/app.pid ]; then
+            PID=$(cat /home/ubuntu/node-demo/app.pid)
+
+            if kill -0 "$PID" 2>/dev/null; then
+              kill "$PID"
+              sleep 2
+            fi
+
+            rm -f /home/ubuntu/node-demo/app.pid
+          fi
+
+      - name: Copy Application
+        run: |
+          mkdir -p /home/ubuntu/node-demo
+          cp server.js package.json /home/ubuntu/node-demo/
+          cd /home/ubuntu/node-demo
+          rm -rf node_modules
+          npm install --omit=dev
+
+      - name: Start Application
+        run: |
+          cd /home/ubuntu/node-demo
+
+          RUNNER_TRACKING_ID="" nohup node server.js > app.log 2>&1 &
+
+          echo $! > app.pid
+
+      - name: Verify Deployment
+        run: |
+          sleep 5
+          curl --fail http://localhost:3000/hello
