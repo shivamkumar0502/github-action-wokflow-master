@@ -8,7 +8,7 @@ npm install
 npm start
 ```
 
-Server runs on `http://localhost:3000`.
+Server runs on `http://localhost:8080`.
 
 Endpoints:
 - `GET /hello`
@@ -27,3 +27,5 @@ npm test
 ## Feature Branch Update
 
 CI/CD Runner Test
+
+Deploy test
