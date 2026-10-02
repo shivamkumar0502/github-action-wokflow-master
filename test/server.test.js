@@ -5,7 +5,7 @@ describe("API endpoints", () => {
   test("GET /hello returns the expected message", async () => {
     const response = await request(app).get("/hello");
     expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("Hello from Coder Army! Welcome back");
+    expect(response.text).toBe("Hello from Coder Army!");
   });
 
   test("GET /bye returns the expected message", async () => {
